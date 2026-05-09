@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Annonce;
+use App\Models\Categorie;
 use App\Models\Photo;
 use App\Mail\AnnonceSoumise;
 use Illuminate\Http\Request;
@@ -14,36 +15,78 @@ use Illuminate\Support\Facades\Storage;
 class AnnonceController extends Controller
 {
     // Lmra dyal les visiteurs: afficher ga3 les annonces publiées
-    public function index()
+    public function index(Request $request)
     {
-        // Nbiyno ghi lli 'publiee', w nziydo pagination (15 par page)
-        $annonces = Annonce::active()->with(['photos', 'categorie'])->latest('date_publication')->paginate(15);
-        
-        // F l'instant, kantsifto JSON bach ntestiw f backend
-        return response()->json($annonces);
+        $query = Annonce::active()->with(['photos', 'categorie']);
+
+        if ($request->filled('q')) {
+            $query->where('titre', 'like', '%' . $request->q . '%')
+                  ->orWhere('description', 'like', '%' . $request->q . '%');
+        }
+        if ($request->filled('categorie')) {
+            $query->where('id_categorie', $request->categorie);
+        }
+        if ($request->filled('prix_max')) {
+            $query->where('prix', '<=', $request->prix_max);
+        }
+
+        $tri = $request->get('tri', 'recent');
+        match ($tri) {
+            'prix_asc'  => $query->orderBy('prix', 'asc'),
+            'prix_desc' => $query->orderBy('prix', 'desc'),
+            default     => $query->latest('date_publication'),
+        };
+
+        $categories = Categorie::all();
+        $villes = []; // Pas de ville dans l'MCD pour l'instant
+
+        if ($request->routeIs('home') || $request->path() === '/') {
+            $annonces = $query->latest('date_publication')->take(6)->get();
+            return view('annonces.index-home', compact('annonces', 'categories', 'villes'));
+        }
+
+        $annonces = $query->paginate(12)->withQueryString();
+        return view('annonces.index', compact('annonces', 'categories', 'villes'));
     }
 
     // Afficher les annonces dyal l'utilisateur connecté ("Mes annonces")
-    public function mesAnnonces()
+    public function mesAnnonces(Request $request)
     {
-        $annonces = Auth::user()->annonces()->with(['photos', 'categorie'])->latest('date_publication')->get();
-        return response()->json($annonces);
+        $query = Auth::user()->annonces()->with(['photos', 'categorie']);
+
+        if ($request->filled('statut')) {
+            $query->where('statut', $request->statut);
+        }
+
+        $annonces = $query->latest('date_publication')->paginate(10)->withQueryString();
+
+        $stats = [
+            'total'    => Auth::user()->annonces()->count(),
+            'actives'  => Auth::user()->annonces()->where('statut', 'publiee')->count(),
+            'vendues'  => 0, // Pas de statut vendue dans l'MCD
+        ];
+
+        return view('annonces.mes-annonces', compact('annonces', 'stats'));
+    }
+
+    // Afficher formulaire de création
+    public function create()
+    {
+        $categories = Categorie::all();
+        return view('annonces.create', compact('categories'));
     }
 
     // Ajouter une nouvelle annonce
     public function store(Request $request)
     {
-        // 1. Validation des champs (kima f diagramme: "Valider les champs")
         $validated = $request->validate([
             'titre'        => 'required|string|max:255',
             'description'  => 'required|string',
             'prix'         => 'nullable|numeric|min:0',
             'id_categorie' => 'required|exists:categories,id',
-            'photos'       => 'nullable|array',
-            'photos.*'     => 'image|mimes:jpeg,png,jpg,gif|max:5120',
+            'image'        => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
-        // 2. Création de l'annonce en base de données
         $annonce = Annonce::create([
             'id_utilisateur' => Auth::id(),
             'id_categorie'   => $validated['id_categorie'],
@@ -53,34 +96,24 @@ class AnnonceController extends Controller
             'statut'         => 'en_attente',
         ]);
 
-        // 3. Téléverser les photos (Ila kaynin)
-        if ($request->hasFile('photos')) {
-            foreach ($request->file('photos') as $index => $file) {
-                // Sauvegarder f storage/app/public/photos
-                $path = $file->store('photos', 'public');
-
-                Photo::create([
-                    'id_annonce'  => $annonce->id,
-                    'url'         => '/storage/' . $path,
-                    'nom_fichier' => $file->getClientOriginalName(),
-                    'ordre'       => $index + 1,
-                ]);
-            }
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('photos', 'public');
+            Photo::create([
+                'id_annonce'  => $annonce->id,
+                'url'         => '/storage/' . $path,
+                'nom_fichier' => $request->file('image')->getClientOriginalName(),
+                'ordre'       => 1,
+            ]);
         }
 
-        // 4. Notifier l'utilisateur par email (kima f diagramme: "Notifier confirmation")
         Mail::to($request->user())->send(new AnnonceSoumise($annonce));
 
-        return response()->json([
-            'message' => 'Annonce publiée avec succès, en attente de modération.',
-            'annonce' => $annonce->load('photos'),
-        ], 201);
+        return redirect()->route('annonces.show', $annonce)->with('success', 'Annonce publiée avec succès, en attente de modération.');
     }
 
     // Afficher les détails d'une annonce ("Voir les détails")
     public function show(Annonce $annonce)
     {
-        // Nbiyno l'annonce 7ta ila kant 'en_attente' ila kan l'utilisateur howa moulaha wla admin
         if ($annonce->statut !== 'publiee') {
             $user = Auth::user();
             if (!$user || ($user->id !== $annonce->id_utilisateur && !$user->isAdmin())) {
@@ -88,13 +121,29 @@ class AnnonceController extends Controller
             }
         }
 
-        return response()->json($annonce->load(['photos', 'categorie', 'utilisateur']));
+        $annonce->load(['photos', 'categorie', 'utilisateur']);
+
+        $similaires = Annonce::with(['categorie', 'photos'])
+            ->active()
+            ->where('id_categorie', $annonce->id_categorie)
+            ->where('id', '!=', $annonce->id)
+            ->latest('date_publication')
+            ->take(4)
+            ->get();
+
+        return view('annonces.show', compact('annonce', 'similaires'));
     }
 
     // Modifier une annonce ("Modifier les champs")
+    public function edit(Annonce $annonce)
+    {
+        Gate::authorize('update', $annonce);
+        $categories = Categorie::all();
+        return view('annonces.edit', compact('annonce', 'categories'));
+    }
+
     public function update(Request $request, Annonce $annonce)
     {
-        // Nvériyiw l'autorisation (ghi moul l'annonce 3ndo l7a9 ymodifier)
         Gate::authorize('update', $annonce);
 
         $validated = $request->validate([
@@ -102,9 +151,9 @@ class AnnonceController extends Controller
             'description'  => 'required|string',
             'prix'         => 'nullable|numeric|min:0',
             'id_categorie' => 'required|exists:categories,id',
+            'image'        => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
-        // Ila l'annonce tmodifat, nreje3ouha "en_attente" bach l'admin yvériyiha tany
         $annonce->update([
             'titre'        => $validated['titre'],
             'description'  => $validated['description'],
@@ -113,19 +162,32 @@ class AnnonceController extends Controller
             'statut'       => 'en_attente', 
         ]);
 
-        return response()->json([
-            'message' => 'Annonce mise à jour.',
-            'annonce' => $annonce,
-        ]);
+        if ($request->hasFile('image')) {
+            // Supprimer l'ancienne image
+            if ($annonce->photos->count() > 0) {
+                $oldPhoto = $annonce->photos->first();
+                $path = str_replace('/storage/', '', $oldPhoto->url);
+                Storage::disk('public')->delete($path);
+                $oldPhoto->delete();
+            }
+
+            $path = $request->file('image')->store('photos', 'public');
+            Photo::create([
+                'id_annonce'  => $annonce->id,
+                'url'         => '/storage/' . $path,
+                'nom_fichier' => $request->file('image')->getClientOriginalName(),
+                'ordre'       => 1,
+            ]);
+        }
+
+        return redirect()->route('annonces.show', $annonce)->with('success', 'Annonce mise à jour avec succès.');
     }
 
     // Supprimer une annonce
     public function destroy(Annonce $annonce)
     {
-        // Nvériyiw l'autorisation (ghi moul l'annonce 3ndo l7a9 ysupprimer)
         Gate::authorize('delete', $annonce);
 
-        // 1. Nmes7o les fichiers physiques dyal les photos mn serveur
         foreach ($annonce->photos as $photo) {
             $path = str_replace('/storage/', '', $photo->url);
             if (Storage::disk('public')->exists($path)) {
@@ -133,9 +195,8 @@ class AnnonceController extends Controller
             }
         }
 
-        // 2. Nmes7o l'annonce mn base de données
         $annonce->delete();
 
-        return response()->json(['message' => 'Annonce supprimée avec succès.']);
+        return redirect()->route('annonces.mine')->with('success', 'Annonce supprimée avec succès.');
     }
 }

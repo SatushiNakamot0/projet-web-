@@ -62,4 +62,12 @@ class Annonce extends Model
     {
         return $query->where('statut', 'en_attente');
     }
+
+    // =========================================================
+    // HELPERS
+    // =========================================================
+    public function prixFormate()
+    {
+        return $this->prix ? number_format($this->prix, 2, ',', ' ') . ' DH' : 'Prix sur demande';
+    }
 }
