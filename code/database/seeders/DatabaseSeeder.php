@@ -3,23 +3,40 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
+    // Nlanciou les seeders lkhrin w ncreaw l'utilisateurs
     public function run(): void
     {
-        // User::factory(10)->create();
+        // 1) Nzidow les catégories lwel
+        $this->call(CategorieSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // 2) Nzidow compte admin pour les tests
+        User::firstOrCreate(
+            ['email' => 'admin@annonces.ma'],
+            [
+                'nom'      => 'Admin',
+                'prenom'   => 'Istrateur',
+                'mot_de_passe'  => Hash::make('password123'),
+                'role'      => 'admin',
+                'statut'    => 'actif',
+            ]
+        );
+
+        // 3) Nzidow membre test bach njarbaw les fonctionnalités
+        User::firstOrCreate(
+            ['email' => 'membre@annonces.ma'],
+            [
+                'nom'      => 'Test',
+                'prenom'   => 'Membre',
+                'mot_de_passe'  => Hash::make('password123'),
+                'role'      => 'membre',
+                'statut'    => 'actif',
+            ]
+        );
+
     }
 }

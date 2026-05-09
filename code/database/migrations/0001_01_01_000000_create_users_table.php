@@ -6,17 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    // Ncreaw les tables mnin nruniw la migration
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('utilisateurs', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
+            $table->string('nom', 100);
+            $table->string('prenom', 100);
+            $table->string('email', 255)->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('mot_de_passe', 255);
+            $table->enum('role', ['visiteur', 'membre', 'admin'])->default('membre');
+            $table->enum('statut', ['actif', 'suspendu', 'banni'])->default('actif');
+            $table->dateTime('date_inscription')->useCurrent();
             $table->rememberToken();
             $table->timestamps();
         });
@@ -37,12 +39,10 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+    // Nmes7o les tables yla derna rollback
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('utilisateurs');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }
