@@ -256,9 +256,23 @@
     </div>
     
     <div class="cat-grid">
+      @php
+        $lucideIcons = [
+          'Immobilier' => 'home',
+          'Véhicules' => 'car',
+          'Électronique' => 'smartphone',
+          'Emploi' => 'briefcase',
+          'Habillement' => 'shirt',
+          'Maison & Jardin' => 'armchair',
+          'Sports & Loisirs' => 'bike',
+          'Autres' => 'package'
+        ];
+      @endphp
       @foreach($categories as $cat)
         <a href="{{ route('annonces.index', ['categorie' => $cat->id]) }}" class="cat-card">
-          <div class="cat-icon">{{ $cat->icone ?? '📦' }}</div>
+          <div class="cat-icon" style="display:flex;align-items:center;justify-content:center;">
+            <i data-lucide="{{ $lucideIcons[$cat->nom] ?? 'package' }}" style="width:36px;height:36px;stroke-width:1.5;color:var(--primary);"></i>
+          </div>
           <div class="cat-name">{{ $cat->nom }}</div>
         </a>
       @endforeach
@@ -289,7 +303,9 @@
             @if($annonce->photos->count() > 0)
                 <img src="{{ asset($annonce->photos->first()->url) }}" alt="{{ $annonce->titre }}">
             @else
-                {{ $annonce->categorie->icone ?? '📦' }}
+                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg-color);color:var(--text-light);">
+                  <i data-lucide="{{ $lucideIcons[$annonce->categorie->nom] ?? 'image' }}" style="width:48px;height:48px;stroke-width:1;"></i>
+                </div>
             @endif
             <div class="ad-badge">{{ $annonce->categorie->nom }}</div>
             </div>

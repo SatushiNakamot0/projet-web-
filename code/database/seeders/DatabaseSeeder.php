@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
                 'mot_de_passe'  => Hash::make('password123'),
                 'role'      => 'admin',
                 'statut'    => 'actif',
+                'email_verified_at' => now(),
             ]
         );
 
@@ -35,6 +36,7 @@ class DatabaseSeeder extends Seeder
                 'mot_de_passe'  => Hash::make('password123'),
                 'role'      => 'membre',
                 'statut'    => 'actif',
+                'email_verified_at' => now(),
             ]
         );
 

@@ -11,15 +11,19 @@ class ModerationController extends Controller
     // Lli kaytklf b affichage dyal "Liste annonces en attente"
     public function index()
     {
-        // Nrécupérer ga3 les annonces lli mazal en attente
-        $annonces = Annonce::enAttente()->with(['utilisateur', 'categorie'])->latest('date_publication')->get();
-        return response()->json($annonces);
+        // Nrécupérer ga3 les annonces (admin ichouf kolchi)
+        $annonces = Annonce::with(['utilisateur', 'categorie', 'photos'])
+            ->latest('date_publication')
+            ->get();
+
+        return view('admin.moderation.index', compact('annonces'));
     }
 
     // "Consulter une annonce"
     public function show(Annonce $annonce)
     {
-        return response()->json($annonce->load(['utilisateur', 'categorie', 'photos']));
+        $annonce->load(['utilisateur', 'categorie', 'photos']);
+        return view('admin.moderation.show', compact('annonce'));
     }
 
     // "Approuver -> Annonce publiée"
@@ -30,7 +34,7 @@ class ModerationController extends Controller
             'motif_rejet' => null // N7iydo l'motif ila kan deja mrejetté qbl
         ]);
 
-        return response()->json(['message' => 'Annonce approuvée et publiée avec succès.', 'annonce' => $annonce]);
+        return redirect()->route('admin.moderation.index')->with('success', 'Annonce approuvée et publiée ✅');
     }
 
     // "Rejeter -> Annonce rejetée" 
@@ -45,6 +49,13 @@ class ModerationController extends Controller
             'motif_rejet' => $request->motif_rejet
         ]);
 
-        return response()->json(['message' => 'Annonce rejetée.', 'annonce' => $annonce]);
+        return redirect()->route('admin.moderation.index')->with('success', 'Annonce rejetée ❌');
+    }
+
+    // Suppression définitive d'une annonce
+    public function destroy(Annonce $annonce)
+    {
+        $annonce->delete();
+        return redirect()->route('admin.moderation.index')->with('success', 'Annonce supprimée définitivement.');
     }
 }

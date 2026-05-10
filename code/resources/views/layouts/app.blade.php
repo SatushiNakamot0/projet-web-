@@ -185,14 +185,17 @@ body {
     display: none; 
     position: absolute; 
     right: 0; 
-    top: calc(100% + 8px); 
+    top: 100%; 
+    padding-top: 8px;
+    z-index: 200; 
+}
+.dropdown-menu-inner {
     background-color: var(--surface-color); 
     border: 1px solid var(--border); 
     border-radius: var(--radius-md); 
     min-width: 200px; 
     padding: 0.5rem; 
     box-shadow: var(--shadow-lg); 
-    z-index: 200; 
 }
 .user-dropdown:hover .dropdown-menu { display: block; }
 .dropdown-item { 
@@ -315,13 +318,21 @@ body {
               <span>{{ Auth::user()->prenom }} {{ Auth::user()->nom }}</span>
             </button>
             <div class="dropdown-menu">
-              <a href="{{ route('annonces.mine') }}" class="dropdown-item">📋 Mes annonces</a>
-              <a href="{{ route('profile.edit') }}" class="dropdown-item">⚙️ Mon profil</a>
-              <div class="dropdown-sep"></div>
-              <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="dropdown-item danger">🚪 Déconnexion</button>
-              </form>
+              <div class="dropdown-menu-inner">
+                <a href="{{ route('annonces.mine') }}" class="dropdown-item" style="display:flex;align-items:center;gap:0.5rem;"><i data-lucide="layout-list" style="width:18px;height:18px;"></i> Mes annonces</a>
+                <a href="{{ route('messages.index') }}" class="dropdown-item" style="display:flex;align-items:center;gap:0.5rem;"><i data-lucide="message-square" style="width:18px;height:18px;"></i> Messagerie</a>
+                <a href="{{ route('profile.edit') }}" class="dropdown-item" style="display:flex;align-items:center;gap:0.5rem;"><i data-lucide="settings" style="width:18px;height:18px;"></i> Mon profil</a>
+                @if(Auth::user()->isAdmin())
+                  <div class="dropdown-sep"></div>
+                  <a href="{{ route('admin.moderation.index') }}" class="dropdown-item" style="display:flex;align-items:center;gap:0.5rem;"><i data-lucide="shield-check" style="width:18px;height:18px;"></i> Gérer les annonces</a>
+                  <a href="{{ route('admin.users.index') }}" class="dropdown-item" style="display:flex;align-items:center;gap:0.5rem;"><i data-lucide="users" style="width:18px;height:18px;"></i> Gérer les utilisateurs</a>
+                @endif
+                <div class="dropdown-sep"></div>
+                <form method="POST" action="{{ route('logout') }}">
+                  @csrf
+                  <button type="submit" class="dropdown-item danger" style="display:flex;align-items:center;gap:0.5rem;"><i data-lucide="log-out" style="width:18px;height:18px;"></i> Déconnexion</button>
+                </form>
+              </div>
             </div>
           </div>
         @else
@@ -350,7 +361,7 @@ body {
           <img src="{{ asset('images/logo.png') }}" alt="MarketAd World Logo" style="height:44px;width:auto;margin:-8px -6px -8px -10px;">
           MarketAd World
         </div>
-        <div class="footer-copy">© {{ date('Y') }} MarketAd World. Tous droits réservés au Maroc.</div>
+        <div class="footer-copy">© {{ date('Y') }} MarketAd World. Tous droits réservés à yazid et nawar.</div>
       </div>
       <div class="footer-links">
         <a href="{{ route('home') }}">Accueil</a>
@@ -363,5 +374,9 @@ body {
 </footer>
 
 @stack('scripts')
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+</script>
 </body>
 </html>

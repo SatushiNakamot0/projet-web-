@@ -27,7 +27,7 @@
 /* FILE UPLOAD */
 .file-upload { border: 2px dashed var(--border); border-radius: var(--radius-md); padding: 2rem; text-align: center; background: #f8fafc; cursor: pointer; transition: all 0.2s; position: relative; }
 .file-upload:hover { border-color: var(--primary); background: var(--primary-light); }
-.file-upload input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.file-upload input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; z-index: 10; }
 .file-icon { font-size: 2rem; margin-bottom: 0.5rem; }
 .file-text { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
 .file-text span { color: var(--primary); font-weight: 600; }
@@ -115,3 +115,22 @@
 
 </div>
 @endsection
+
+@push('scripts')
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.querySelector('.file-upload input[type="file"]');
+    const fileText = document.querySelector('.file-upload .file-text');
+
+    if (fileInput && fileText) {
+      fileInput.addEventListener('change', function(e) {
+        if (this.files && this.files.length > 0) {
+          fileText.innerHTML = `<span style="color:var(--primary);font-weight:600;">${this.files[0].name}</span>`;
+        } else {
+          fileText.innerHTML = `<span>Cliquez pour parcourir</span> ou glissez-déposez`;
+        }
+      });
+    }
+  });
+</script>
+@endpush

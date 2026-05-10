@@ -111,10 +111,10 @@
       @auth
         @if(Auth::id() === $annonce->id_utilisateur)
           <div class="owner-actions">
-            <a href="{{ route('annonces.edit', $annonce) }}" class="btn-outline" style="flex:1; text-align:center;">✏️ Modifier</a>
+            <a href="{{ route('annonces.edit', $annonce) }}" class="btn-outline" style="flex:1; text-align:center; display:flex; justify-content:center; align-items:center; gap:0.5rem;"><i data-lucide="edit-2" style="width:18px;height:18px;"></i> Modifier</a>
             <form method="POST" action="{{ route('annonces.destroy', $annonce) }}" onsubmit="return confirm('Supprimer cette annonce ?')" style="flex:1;">
               @csrf @method('DELETE')
-              <button type="submit" class="btn-outline" style="width:100%; color:var(--danger); border-color:var(--danger-light);">🗑️ Supprimer</button>
+              <button type="submit" class="btn-outline" style="width:100%; color:var(--danger); border-color:var(--danger-light); display:flex; justify-content:center; align-items:center; gap:0.5rem;"><i data-lucide="trash-2" style="width:18px;height:18px;"></i> Supprimer</button>
             </form>
           </div>
         @endif
@@ -124,8 +124,8 @@
         <div class="price-value">{{ $annonce->prixFormate() }}</div>
         @auth
           @if(Auth::id() !== $annonce->id_utilisateur)
-            <a href="mailto:{{ $annonce->utilisateur->email }}?subject=Annonce : {{ $annonce->titre }}" class="btn-full">
-              ✉️ Contacter le vendeur
+            <a href="{{ route('messages.show', ['user' => $annonce->utilisateur->id, 'annonce_id' => $annonce->id]) }}" class="btn-full" style="display:flex; justify-content:center; align-items:center; gap:0.5rem;">
+              <i data-lucide="mail" style="width:20px;height:20px;"></i> Contacter le vendeur
             </a>
           @endif
         @else
@@ -156,7 +156,7 @@
             @if($sim->photos->count() > 0)
               <img src="{{ asset($sim->photos->first()->url) }}" alt="{{ $sim->titre }}">
             @else
-              {{ $sim->categorie->icone ?? '📦' }}
+              {{ $sim->categorie->icone ?? '' }}
             @endif
           </div>
           <div class="ad-card-sm-content">

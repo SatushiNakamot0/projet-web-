@@ -12,8 +12,12 @@ class UserController extends Controller
     public function index()
     {
         // On récupère tous les utilisateurs sauf nous-mêmes bach l'admin maybannich rasso
-        $users = User::where('id', '!=', auth()->id())->latest('date_inscription')->get();
-        return response()->json($users);
+        $users = User::where('id', '!=', auth()->id())
+            ->withCount('annonces')
+            ->latest('date_inscription')
+            ->get();
+
+        return view('admin.users.index', compact('users'));
     }
 
     // "Activer / désactiver / supprimer compte" - Mise à jour du statut
@@ -25,21 +29,18 @@ class UserController extends Controller
 
         $user->update(['statut' => $validated['statut']]);
 
-        return response()->json([
-            'message' => 'Statut de l\'utilisateur mis à jour.',
-            'user' => $user
-        ]);
+        return redirect()->route('admin.users.index')->with('success', 'Statut de ' . $user->prenom . ' mis à jour ✅');
     }
 
     // Suppression définitive du compte
     public function destroy(User $user)
     {
         if ($user->isAdmin()) {
-            return response()->json(['message' => 'Impossible de supprimer un autre administrateur.'], 403);
+            return redirect()->route('admin.users.index')->with('error', 'Impossible de supprimer un administrateur.');
         }
 
         $user->delete();
 
-        return response()->json(['message' => 'Utilisateur supprimé définitivement.']);
+        return redirect()->route('admin.users.index')->with('success', 'Utilisateur supprimé définitivement.');
     }
 }
