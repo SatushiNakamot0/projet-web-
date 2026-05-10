@@ -23,6 +23,7 @@ class Annonce extends Model
 
     protected $casts = [
         'prix' => 'decimal:2',
+        'date_publication' => 'datetime',
     ];
 
     // =========================================================

@@ -17,8 +17,9 @@
     <body class="font-sans text-gray-900 antialiased">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
             <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+                <a href="/" style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;text-decoration:none;">
+                    <img src="{{ asset('images/logo.png') }}" alt="MarketAd World Logo" style="height:64px;width:auto;">
+                    <span style="font-family:'Inter',sans-serif;font-size:1.25rem;font-weight:800;color:#4f46e5;letter-spacing:-0.5px;">MarketAd World</span>
                 </a>
             </div>
 

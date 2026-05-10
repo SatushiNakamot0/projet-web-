@@ -29,7 +29,8 @@ body { background:var(--bg-color); color:var(--text-main); font-family:var(--fon
 
 /* NAV */
 .nav { padding: 1.5rem 2rem; position: absolute; width: 100%; top: 0; }
-.logo { font-size: 1.25rem; font-weight: 800; color: var(--primary); text-decoration: none; letter-spacing: -0.5px; }
+.logo { font-size: 1.25rem; font-weight: 800; color: var(--primary); text-decoration: none; letter-spacing: -0.5px; display: flex; align-items: center; gap: 0; }
+.logo img { height: 52px; width: auto; margin: -10px -8px -10px -12px; }
 
 /* LAYOUT */
 .auth-layout { flex: 1; display: flex; align-items: center; justify-content: center; padding: 5rem 2rem 2rem; }
@@ -62,7 +63,10 @@ body { background:var(--bg-color); color:var(--text-main); font-family:var(--fon
 <body>
  
 <nav class="nav">
-    <a href="/" class="logo">MarketAd World</a>
+    <a href="/" class="logo">
+        <img src="{{ asset('images/logo.png') }}" alt="MarketAd World Logo">
+        MarketAd World
+    </a>
 </nav>
  
 <div class="auth-layout">

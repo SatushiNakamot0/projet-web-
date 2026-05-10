@@ -81,6 +81,15 @@ body {
     color: var(--primary); 
     text-decoration: none; 
     letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+.logo-img {
+    height: 52px;
+    width: auto;
+    object-fit: contain;
+    margin: -10px -8px -10px -12px;
 }
 .nav-btn { 
     background: none; 
@@ -292,7 +301,10 @@ body {
 
 <nav class="nav">
   <div class="nav-container">
-      <a href="{{ route('home') }}" class="logo">MarketAd World</a>
+      <a href="{{ route('home') }}" class="logo">
+        <img src="{{ asset('images/logo.png') }}" alt="MarketAd World Logo" class="logo-img">
+        MarketAd World
+      </a>
       <div style="display:flex;gap:0.5rem;align-items:center;">
         <a href="{{ route('annonces.index') }}" class="nav-btn">Toutes les annonces</a>
         @auth
@@ -334,7 +346,10 @@ body {
 <footer class="footer">
   <div class="footer-container">
       <div>
-        <div class="footer-logo">MarketAd World</div>
+        <div class="footer-logo" style="display:flex;align-items:center;gap:0;">
+          <img src="{{ asset('images/logo.png') }}" alt="MarketAd World Logo" style="height:44px;width:auto;margin:-8px -6px -8px -10px;">
+          MarketAd World
+        </div>
         <div class="footer-copy">© {{ date('Y') }} MarketAd World. Tous droits réservés au Maroc.</div>
       </div>
       <div class="footer-links">

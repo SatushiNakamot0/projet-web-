@@ -38,5 +38,8 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        // 4) Nzidow les annonces exemples mn dossier Pictures
+        $this->call(AnnonceSeeder::class);
+
     }
 }
