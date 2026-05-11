@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Storage;
 
 class AnnonceController extends Controller
 {
-    // Lmra dyal les visiteurs: afficher ga3 les annonces publiées
+    // Afficher ga3 les annonces publiées (Visiteur + Membre)
     public function index(Request $request)
     {
         $query = Annonce::active()->with(['photos', 'categorie']);
@@ -38,7 +38,7 @@ class AnnonceController extends Controller
         };
 
         $categories = Categorie::all();
-        $villes = []; // Pas de ville dans l'MCD pour l'instant
+        $villes = [];
 
         if ($request->routeIs('home') || $request->path() === '/') {
             $annonces = $query->latest('date_publication')->take(6)->get();
@@ -49,7 +49,7 @@ class AnnonceController extends Controller
         return view('annonces.index', compact('annonces', 'categories', 'villes'));
     }
 
-    // Afficher les annonces dyal l'utilisateur connecté ("Mes annonces")
+    // Annonces dyal l'utilisateur connecté ("Mes annonces")
     public function mesAnnonces(Request $request)
     {
         $query = Auth::user()->annonces()->with(['photos', 'categorie']);
@@ -63,20 +63,20 @@ class AnnonceController extends Controller
         $stats = [
             'total'    => Auth::user()->annonces()->count(),
             'actives'  => Auth::user()->annonces()->where('statut', 'publiee')->count(),
-            'vendues'  => 0, // Pas de statut vendue dans l'MCD
+            'vendues'  => 0,
         ];
 
         return view('annonces.mes-annonces', compact('annonces', 'stats'));
     }
 
-    // Afficher formulaire de création
+    // Formulaire de création
     public function create()
     {
         $categories = Categorie::all();
         return view('annonces.create', compact('categories'));
     }
 
-    // Ajouter une nouvelle annonce
+    // Enregistrer une nouvelle annonce
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -106,12 +106,16 @@ class AnnonceController extends Controller
             ]);
         }
 
-        Mail::to($request->user())->send(new AnnonceSoumise($annonce));
+        try {
+            Mail::to($request->user())->send(new AnnonceSoumise($annonce));
+        } catch (\Throwable $e) {
+            \Log::error("Failed to send email: " . $e->getMessage());
+        }
 
         return redirect()->route('annonces.show', $annonce)->with('success', 'Annonce publiée avec succès, en attente de modération.');
     }
 
-    // Afficher les détails d'une annonce ("Voir les détails")
+    // Afficher les détails d'une annonce
     public function show(Annonce $annonce)
     {
         if ($annonce->statut !== 'publiee') {
@@ -134,7 +138,7 @@ class AnnonceController extends Controller
         return view('annonces.show', compact('annonce', 'similaires'));
     }
 
-    // Modifier une annonce ("Modifier les champs")
+    // Modifier une annonce
     public function edit(Annonce $annonce)
     {
         Gate::authorize('update', $annonce);
@@ -159,11 +163,10 @@ class AnnonceController extends Controller
             'description'  => $validated['description'],
             'prix'         => $validated['prix'] ?? null,
             'id_categorie' => $validated['id_categorie'],
-            'statut'       => 'en_attente', 
+            'statut'       => 'en_attente',
         ]);
 
         if ($request->hasFile('image')) {
-            // Supprimer l'ancienne image
             if ($annonce->photos->count() > 0) {
                 $oldPhoto = $annonce->photos->first();
                 $path = str_replace('/storage/', '', $oldPhoto->url);

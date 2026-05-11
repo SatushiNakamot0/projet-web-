@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    // Lbniy dyal la table categories
     public function up(): void
     {
         Schema::create('categories', function (Blueprint $table) {
@@ -17,7 +16,6 @@ return new class extends Migration
         });
     }
 
-    // Ms7 la table categories
     public function down(): void
     {
         Schema::dropIfExists('categories');

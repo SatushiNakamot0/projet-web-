@@ -12,13 +12,11 @@ use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
 {
-    // Nvériyiw wesh l'utilisateur 3ndo l7a9 ydir had la requête
     public function authorize(): bool
     {
         return true;
     }
 
-    // Les règles dyal lvalidation
     public function rules(): array
     {
         return [
@@ -27,12 +25,11 @@ class LoginRequest extends FormRequest
         ];
     }
 
-    // L'authentification b les informations lli dkhel
+    // Authentification — ndawzo 'mot_de_passe' f blast 'password'
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
 
-        // Ndawzo 'mot_de_passe' f blast 'password' 7it Auth::attempt kay9leb 3la 'password'
         if (! Auth::attempt(['email' => $this->email, 'password' => $this->mot_de_passe], $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
@@ -44,7 +41,6 @@ class LoginRequest extends FormRequest
         RateLimiter::clear($this->throttleKey());
     }
 
-    // Nvériyiw wesh dar bzaf dyal les tentatives
     public function ensureIsNotRateLimited(): void
     {
         if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
@@ -63,7 +59,6 @@ class LoginRequest extends FormRequest
         ]);
     }
 
-    // La clé dyal throttle bach n3erfo chhal mn mra 7awel
     public function throttleKey(): string
     {
         return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());

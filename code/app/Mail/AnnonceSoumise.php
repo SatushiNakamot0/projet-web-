@@ -15,13 +15,11 @@ class AnnonceSoumise extends Mailable
 
     public $annonce;
 
-    // Ncreaw l'email jdid
     public function __construct(Annonce $annonce)
     {
         $this->annonce = $annonce;
     }
 
-    // Sujet dyal l'email
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -29,7 +27,6 @@ class AnnonceSoumise extends Mailable
         );
     }
 
-    // Lmo7tawa dyal l'email (HTML)
     public function content(): Content
     {
         return new Content(
@@ -43,7 +40,6 @@ class AnnonceSoumise extends Mailable
         );
     }
 
-    // Les pièces jointes (makayninch)
     public function attachments(): array
     {
         return [];

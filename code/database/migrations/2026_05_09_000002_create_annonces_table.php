@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    // Lbniy dyal la table annonces
     public function up(): void
     {
         Schema::create('annonces', function (Blueprint $table) {
@@ -23,7 +22,6 @@ return new class extends Migration
         });
     }
 
-    // Ms7 la table annonces
     public function down(): void
     {
         Schema::dropIfExists('annonces');

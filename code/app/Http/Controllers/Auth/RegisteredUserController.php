@@ -14,13 +14,11 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    // Afficher l'formulaire dyal l'inscription
     public function create(): View
     {
         return view('auth.register');
     }
 
-    // Gérer l'enregistrement dyal utilisateur jdid
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -39,9 +37,13 @@ class RegisteredUserController extends Controller
             'statut' => 'actif',
         ]);
 
-        event(new Registered($user));
-
         Auth::login($user);
+
+        try {
+            event(new Registered($user));
+        } catch (\Throwable $e) {
+            \Log::error("Failed to send registration email: " . $e->getMessage());
+        }
 
         return redirect(route('dashboard', absolute: false));
     }

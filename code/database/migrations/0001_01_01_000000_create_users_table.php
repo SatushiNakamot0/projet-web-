@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    // Ncreaw les tables mnin nruniw la migration
     public function up(): void
     {
         Schema::create('utilisateurs', function (Blueprint $table) {
@@ -39,7 +38,6 @@ return new class extends Migration
         });
     }
 
-    // Nmes7o les tables yla derna rollback
     public function down(): void
     {
         Schema::dropIfExists('utilisateurs');

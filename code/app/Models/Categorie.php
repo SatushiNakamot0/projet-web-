@@ -16,10 +16,6 @@ class Categorie extends Model
         'description',
     ];
 
-    // =========================================================
-    // RELATIONS (L3alaqat)
-    // =========================================================
-
     public function annonces()
     {
         return $this->hasMany(Annonce::class, 'id_categorie');

@@ -18,10 +18,6 @@ class Photo extends Model
         'ordre',
     ];
 
-    // =========================================================
-    // RELATIONS (L3alaqat)
-    // =========================================================
-
     public function annonce()
     {
         return $this->belongsTo(Annonce::class, 'id_annonce');

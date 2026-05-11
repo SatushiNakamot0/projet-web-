@@ -8,13 +8,12 @@ use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    // Nlanciou les seeders lkhrin w ncreaw l'utilisateurs
     public function run(): void
     {
-        // 1) Nzidow les catégories lwel
+        // 1) Catégories
         $this->call(CategorieSeeder::class);
 
-        // 2) Nzidow compte admin pour les tests
+        // 2) Compte Admin
         User::firstOrCreate(
             ['email' => 'admin@annonces.ma'],
             [
@@ -27,7 +26,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 3) Nzidow membre test bach njarbaw les fonctionnalités
+        // 3) Compte Membre test
         User::firstOrCreate(
             ['email' => 'membre@annonces.ma'],
             [
@@ -40,8 +39,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 4) Nzidow les annonces exemples mn dossier Pictures
+        // 4) Annonces exemples
         $this->call(AnnonceSeeder::class);
-
     }
 }

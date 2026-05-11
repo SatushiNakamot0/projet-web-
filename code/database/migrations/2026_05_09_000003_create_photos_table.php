@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    // Lbniy dyal la table photos
     public function up(): void
     {
         Schema::create('photos', function (Blueprint $table) {
@@ -19,7 +18,6 @@ return new class extends Migration
         });
     }
 
-    // Ms7 la table photos
     public function down(): void
     {
         Schema::dropIfExists('photos');

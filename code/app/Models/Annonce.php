@@ -26,9 +26,9 @@ class Annonce extends Model
         'date_publication' => 'datetime',
     ];
 
-    // =========================================================
-    // RELATIONS (L3alaqat)
-    // =========================================================
+    // ========================
+    // RELATIONS
+    // ========================
 
     public function utilisateur()
     {
@@ -50,9 +50,9 @@ class Annonce extends Model
         return $this->hasMany(Message::class, 'id_annonce');
     }
 
-    // =========================================================
-    // SCOPES (Bach nfilitriw bshoula)
-    // =========================================================
+    // ========================
+    // SCOPES
+    // ========================
 
     public function scopeActive($query)
     {
@@ -64,9 +64,10 @@ class Annonce extends Model
         return $query->where('statut', 'en_attente');
     }
 
-    // =========================================================
+    // ========================
     // HELPERS
-    // =========================================================
+    // ========================
+
     public function prixFormate()
     {
         return $this->prix ? number_format($this->prix, 2, ',', ' ') . ' DH' : 'Prix sur demande';

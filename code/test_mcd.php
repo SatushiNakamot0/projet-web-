@@ -14,7 +14,7 @@ use App\Models\Message;
 
 echo "\n";
 echo "╔══════════════════════════════════════════════╗\n";
-echo "║       TEST STRICT MCD ALIGNMENT MODELS       ║\n";
+echo "║         TEST MCD — VALIDATION MODELES        ║\n";
 echo "╚══════════════════════════════════════════════╝\n\n";
 
 // TEST 1: Utilisateurs
@@ -22,11 +22,11 @@ echo "── TEST 1: Utilisateurs ───────────────�
 $users = User::all();
 echo "✅ " . $users->count() . " utilisateurs trouvés.\n";
 foreach ($users as $u) {
-    echo "   [{$u->id}] {$u->nom} {$u->prenom} | statut={$u->statut}\n";
+    echo "   [{$u->id}] {$u->nom} {$u->prenom} | role={$u->role} | statut={$u->statut}\n";
 }
 echo "\n";
 
-// TEST 2: Creation Annonce & Relations
+// TEST 2: Annonces & Relations
 echo "── TEST 2: Annonces & Relations ────────────────\n";
 $cat = Categorie::first();
 $user = User::where('role', 'membre')->first();
@@ -42,10 +42,10 @@ $annonce = Annonce::create([
 ]);
 
 echo "✅ Annonce créée: ID={$annonce->id}, Titre={$annonce->titre}\n";
-echo "✅ Relation utilisateur (vendeur): {$annonce->utilisateur->nom}\n";
+echo "✅ Relation utilisateur: {$annonce->utilisateur->nom}\n";
 echo "✅ Relation categorie: {$annonce->categorie->nom}\n";
 
-// TEST 3: Creation Photo
+// TEST 3: Photos
 echo "\n── TEST 3: Photos ──────────────────────────────\n";
 $photo = Photo::create([
     'id_annonce'  => $annonce->id,
@@ -56,7 +56,7 @@ $photo = Photo::create([
 echo "✅ Photo créée: URL={$photo->url}\n";
 echo "✅ Annonce a " . $annonce->photos()->count() . " photo(s)\n";
 
-// TEST 4: Creation Message
+// TEST 4: Messages
 echo "\n── TEST 4: Messages ────────────────────────────\n";
 $msg = Message::create([
     'id_expediteur'   => $admin->id,
@@ -65,13 +65,13 @@ $msg = Message::create([
     'objet'           => 'Intéressé par votre PC',
     'contenu'         => 'Est-il encore disponible ?',
 ]);
-echo "✅ Message créé: De {$msg->expediteur->nom} à {$msg->destinataire->nom} (Annonce: {$msg->annonce->titre})\n";
-echo "✅ User (Membre) a " . $user->messagesRecus()->count() . " message(s) reçu(s)\n";
-echo "✅ User (Admin) a " . $admin->messagesEnvoyes()->count() . " message(s) envoyé(s)\n";
+echo "✅ Message: De {$msg->expediteur->nom} à {$msg->destinataire->nom}\n";
+echo "✅ Messages reçus (Membre): " . $user->messagesRecus()->count() . "\n";
+echo "✅ Messages envoyés (Admin): " . $admin->messagesEnvoyes()->count() . "\n";
 
-// CLEANUP
+// Nettoyage
 $annonce->delete();
-echo "\n✅ Test cleanup (cascade delete): Annonce, Photo, Message supprimés.\n";
+echo "\n✅ Cleanup: Annonce + Photo + Message supprimés (cascade).\n";
 echo "\n╔══════════════════════════════════════════════╗\n";
-echo "║      TOUS LES TESTS MCD SONT ✅ PASSES!      ║\n";
+echo "║       TOUS LES TESTS MCD SONT ✅ PASSES!     ║\n";
 echo "╚══════════════════════════════════════════════╝\n\n";

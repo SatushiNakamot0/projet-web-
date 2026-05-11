@@ -1,69 +1,71 @@
-# Guide de Réalisation des Captures d'Écran (Backend)
+# 🚀 Comment lancer le projet
 
-Ce document explique comment réaliser, nommer et ranger les captures d'écran nécessaires pour illustrer la partie **Backend** dans notre rapport de projet, en attendant que l'interface Frontend soit terminée.
+## Prérequis
 
----
+- **PHP** ≥ 8.2
+- **Composer**
+- **Node.js** ≥ 18 + npm
 
-## 📁 1. Organisation des Dossiers (Où placer les images)
-
-Toutes les captures doivent être enregistrées dans le dossier `docs/screenshots/` du projet.
-Pour garder un projet propre, crée les sous-dossiers suivants si ce n'est pas déjà fait :
-
-- `docs/screenshots/01_conception/` : *Pour les diagrammes (MCD, Cas d'utilisation, etc. déjà faits)*
-- `docs/screenshots/02_backend/` : *Pour tes captures techniques du Backend (voir ci-dessous)*
-- `docs/screenshots/03_frontend/` : *Dossier réservé pour Nawar quand les vues seront prêtes*
+> Pas besoin de MySQL — le projet utilise **SQLite** (fichier local, zéro config).
 
 ---
 
-## 📸 2. Ce qu'il faut capturer (Liste des tâches)
+## Étapes
 
-Pour prouver que le Backend est fonctionnel et solide, tu dois réaliser **4 captures d'écran obligatoires** depuis ton terminal et ton éditeur (VS Code).
+### 1. Cloner le projet
 
-> **Important :** Sur Windows, utilise l'**Outil Capture d'écran** (Raccourci : `Touche Windows + Maj + S`).
+```bash
+git clone https://github.com/SatushiNakamot0/projet-web-.git
+cd projet-web-/code
+```
 
-### Capture 1 : La base de données et les migrations
-Cette capture prouve que le script de base de données génère bien nos tables (`utilisateurs`, `annonces`, etc.) et insère les données de test (Seeders).
+### 2. Installer les dépendances
 
-* **Comment faire :** 
-  1. Ouvre ton terminal.
-  2. Rentre dans le dossier de code : `cd code`
-  3. Lance : `php artisan migrate:fresh --seed`
-* **Ce qu'il faut photographier :** Le texte vert de succès du terminal.
-* **Nom du fichier exact :** `01_migrations_et_seeders.png`
+```bash
+composer install
+npm install
+```
 
-### Capture 2 : Les tests de conformité MCD
-Cette capture prouve que les relations (One-to-Many, cascade delete) fonctionnent comme prévu dans le diagramme MCD.
+### 3. Configurer l'environnement
 
-* **Comment faire :** 
-  1. Toujours dans le dossier `code`, lance : `php test_mcd.php`
-* **Ce qu'il faut photographier :** Le texte de sortie du terminal montrant les petits "✅" (Utilisateurs trouvés, Annonces créées, Photos liées).
-* **Nom du fichier exact :** `02_test_relations_mcd.png`
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-### Capture 3 : Les routes de l'application (API)
-Cette capture montre au jury que l'architecture MVC est prête et sécurisée, avec des routes d'administration et d'annonces.
+### 4. Créer la base de données + données exemples
 
-* **Comment faire :** 
-  1. Toujours dans le dossier `code`, lance : `php artisan route:list`
-* **Ce qu'il faut photographier :** La liste des routes (focalise-toi sur les lignes qui contiennent `admin/` et `annonces`).
-* **Nom du fichier exact :** `03_liste_des_routes.png`
+```bash
+php artisan migrate:fresh --seed
+```
 
-### Capture 4 : La qualité du code source
-Cette capture montre que le code est propre, structuré, et documenté en Darija comme exigé.
+> Cela crée les tables, les catégories, les utilisateurs de test et **11 annonces exemples avec photos**.
 
-* **Comment faire :** 
-  1. Ouvre VS Code.
-  2. Garde l'explorateur de fichiers ouvert à gauche (pour qu'on voie bien `Controllers`, `Models`, `Policies`).
-  3. Ouvre un fichier principal au milieu (par exemple `app/Policies/AnnoncePolicy.php` ou `app/Models/User.php`) pour qu'on lise les commentaires.
-* **Ce qu'il faut photographier :** Toute la fenêtre de ton VS Code.
-* **Nom du fichier exact :** `04_structure_code_backend.png`
+### 5. Lien storage (pour les images)
+
+```bash
+php artisan storage:link
+```
+
+### 6. Compiler le CSS/JS
+
+```bash
+npm run build
+```
+
+### 7. Lancer le serveur
+
+```bash
+php artisan serve
+```
+
+Ouvrir **http://127.0.0.1:8000** dans le navigateur. ✅
 
 ---
 
-## 🏷️ 3. La règle d'or pour le nommage
+## Comptes de test
 
-Pour le rapport final, il est crucial que les images soient nommées uniformément. Garde ce format en tête :
-- **Tout en minuscules**
-- **Pas d'espaces** (utilise des tirets du bas `_` à la place)
-- Extension **`.png`** (car le format PNG rend le texte des terminaux et du code beaucoup plus net que le `.jpg`).
-
-Une fois ces 4 captures générées et placées dans `docs/screenshots/02_backend/`, tu peux commiter et pousser sur GitHub. Ton travail de rapport technique sera quasiment terminé !
+| Rôle   | Email               | Mot de passe   |
+|--------|---------------------|----------------|
+| Admin  | admin@annonces.ma   | password123    |
+| Membre | membre@annonces.ma  | password123    |

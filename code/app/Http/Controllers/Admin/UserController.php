@@ -8,10 +8,9 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    // "Gérer les utilisateurs" - Liste des utilisateurs
+    // Liste dyal ga3 les utilisateurs (Admin)
     public function index()
     {
-        // On récupère tous les utilisateurs sauf nous-mêmes bach l'admin maybannich rasso
         $users = User::where('id', '!=', auth()->id())
             ->withCount('annonces')
             ->latest('date_inscription')
@@ -20,7 +19,7 @@ class UserController extends Controller
         return view('admin.users.index', compact('users'));
     }
 
-    // "Activer / désactiver / supprimer compte" - Mise à jour du statut
+    // Activer / Suspendre / Bannir un utilisateur
     public function updateStatus(Request $request, User $user)
     {
         $validated = $request->validate([
@@ -32,7 +31,7 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'Statut de ' . $user->prenom . ' mis à jour ✅');
     }
 
-    // Suppression définitive du compte
+    // Supprimer un utilisateur
     public function destroy(User $user)
     {
         if ($user->isAdmin()) {
